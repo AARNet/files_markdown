@@ -59,6 +59,11 @@ OCA.Files_Markdown.Preview.prototype.getUrl = function (path) {
 };
 
 OCA.Files_Markdown.Preview.prototype.previewText = function (text, element) {
+	$('<button id="editor_toggle">').text('Toggle Editor').appendTo('#editor_controls');
+	$("#editor_toggle" ).bind( "click", function() {
+  		$('#preview_wrap').toggleClass('editor_hidden');
+  		$('#editor').toggleClass('editor_hidden');
+	});
 	var html = marked(prepareText(text));
 	element.html(html);
 	if (window.MathJax) {
