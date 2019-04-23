@@ -34,7 +34,8 @@ OCA.Files_Markdown.Preview.prototype.init = function () {
 				return hljs.highlightAuto(code).value;
 			},
 			renderer: this.renderer,
-			headerPrefix: 'md-'
+			headerPrefix: 'md-',
+			sanitize: true
 		});
 	}.bind(this));
 	this.loadMathJax();
