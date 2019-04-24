@@ -421,3 +421,18 @@
 #preview.text-markdown em {
 	font-style: italic;
 }
+
+@media (max-width: 768px) {
+	#editor_container.hasPreview #preview {
+	    display: block !important;
+	}
+	#editor_container.hasPreview #preview {
+	   background: #fff !important;
+	}
+	#editor {
+		width: 50% !important;
+	}
+	#editor.md-full {
+		width: 100% !important;
+	}
+}
