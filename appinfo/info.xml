@@ -2,10 +2,10 @@
 <info>
 	<id>files_markdown</id>
 	<name>Markdown Editor</name>
-	<description>Markdown Editor with live preview.</description>
-	<licence>AGPL</licence>
-	<author>Robin Appelman</author>
+	<description>Markdown editor that uses Markdown It to provide a live preview.</description>
+	<licence>BSD-3-Clause</licence>
+	<author>Michael Usher</author>
 	<dependencies>
-		<owncloud min-version="8.2" max-version="10"/>
+		<owncloud min-version="10" max-version="10"/>
 	</dependencies>
 </info>
