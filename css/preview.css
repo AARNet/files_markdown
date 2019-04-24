@@ -445,3 +445,12 @@
 		width: 100% !important;
 	}
 }
+
+@media (max-width: 620px) {
+	.editor_control {
+		width: 30px !important;
+		height: 30px !important;
+		overflow: hidden;
+		line-height: 1.3rem !important;
+	}
+}
