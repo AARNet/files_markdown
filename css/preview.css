@@ -178,6 +178,10 @@
 	list-style: disc;
 }
 
+#preview.text-markdown ul.task-list {
+        list-style: none;
+}
+
 #preview.text-markdown ol {
 	list-style: decimal;
 }
