@@ -15,6 +15,15 @@
     right: 0;
 }
 
+#editor_controls button.editor_control:hover,
+#editor_controls button.editor_control:active,
+#editor_controls button.editor_control:focus,
+#editor_controls button.editor_control.active {
+	background-color: #2c2c2c;
+	color: #fff;
+}
+
+
 #preview.text-markdown {
 	font-size: 14px;
 	background: #fff !important;

@@ -116,34 +116,40 @@ OCA.Files_Markdown.Preview.addActions = function () {
 	editor_controls = $('#editor_controls');
 	if (editor_controls.data('md_toggles') !== 'true') {	
 		$('<button id="md-view-preview">').text('Preview').addClass("editor_control").appendTo('#editor_controls');
-		$("#md-view-preview" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('preview'); });
+		$("#md-view-preview" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('preview', this); });
 		$('<button id="md-view-sidebyside">').text('Side By Side').addClass("editor_control").appendTo('#editor_controls');
-		$("#md-view-sidebyside" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('sidebyside'); });
+		$("#md-view-sidebyside" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('sidebyside', this); });
 		$('<button id="md-view-editor">').text('Editor').addClass("editor_control").appendTo('#editor_controls');
-		$("#md-view-editor" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('editor'); });
+		$("#md-view-editor" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('editor', this); });
+		$('#md-view-sidebyside').addClass('active');
 
 		editor_controls.data('md_toggles', 'true');
 	}
 };
 
 
-OCA.Files_Markdown.Preview.toggleView = function (view) {
+OCA.Files_Markdown.Preview.toggleView = function (view, button) {
 	var preview = $('#preview_wrap');
 	var editor = $('#editor');
-
+	var controls = $('#editor_controls button.editor_control');
+	
+	controls.removeClass('active');
 	preview.removeClass('md-hidden').removeClass('md-full');
 	editor.removeClass('md-hidden').removeClass('md-full');
 
 	switch(view) {
 		case 'preview':
+			$(button).addClass('active');
 			preview.addClass('md-full');
 			editor.addClass('md-hidden');
 			break;
 		case 'editor':
+			$(button).addClass('active');
 			editor.addClass('md-full');
 			preview.addClass('md-hidden');
 			break;
 		default:
+			$('#md-view-sidebyside').addClass('active');
 		        preview.removeClass('md-hidden').removeClass('md-full');
 		        editor.removeClass('md-hidden').removeClass('md-full');
 	}
