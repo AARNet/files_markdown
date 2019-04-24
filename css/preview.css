@@ -1,11 +1,12 @@
-#editor.editor_hidden {
+.md-hidden {
 	width: 0% !important;
 	display: none !important;
 }
-#preview_wrap.editor_hidden {
+.md-full {
 	width: 100% !important;
 }
-#editor_controls #editor_toggle {
+
+#editor_controls button.editor_control {
     float: right;
     width: 100px;
     border: none;
@@ -16,6 +17,8 @@
 
 #preview.text-markdown {
 	font-size: 14px;
+	background: #fff !important;
+	border-left: 1px #ccc solid;
 }
 
 #preview.text-markdown > *:first-child {
