@@ -115,6 +115,8 @@ OCA.Files_Markdown.Preview.prepareText = function (text) {
 OCA.Files_Markdown.Preview.addActions = function () {
 	editor_controls = $('#editor_controls');
 	if (editor_controls.data('md_toggles') !== 'true') {	
+		// Add a border to the bottom of the editor controls panel
+		editor_controls.addClass('md-header');
 		// Unbind text editor close on click outside of editor
 		$(document).unbind('mouseup', OCA.Files_Texteditor._onClickDocument);
 
