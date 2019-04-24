@@ -1,30 +1,30 @@
 ownCloud Markdown Editor
 =================
 
-Extends the texteditor in ownCloud with a live preview for markdown files
+Extends the text editor in ownCloud with a live preview of markdown files. 
 
-![Markdown Editor](https://i.imgur.com/UAIocNZ.png)
+The previewer has 3 separate views:
+* Editor only
+* Side by side (editor and preview)
+* Preview only
 
-The editor also supports LaTeX math using MathJax.  
-Math should be surrounded by a `$` for inline math or `$$` for a math block.
+The editor uses the [markdown-it](https://github.com/markdown-it/markdown-it) parser and has the following plugins enabled:
+* [markdown-it-texmath](https://github.com/goessner/markdown-it-texmath)
+* [markdown-it-checkboxes](https://github.com/benjycui/markdown-it-checkboxes)
 
-![LaTeX math](https://i.imgur.com/5SpOaoc.png)
-
-Besides embedding images from the web, you can also embed images stored on your ownCloud
-
-![Embed Images](https://i.imgur.com/OfRnjcN.png)
+Through markdown-it-texmath, there is support for TeX math which is rendered using KaTeX. This can be used by surrounding math in `$$`
 
 Requirements
 ---
 
-This requires ownCloud and the text editor app to be installed from ownCloud 7 or higher.
+This requires ownCloud and the files_texteditor app to be installed..
 
 Installation
 ---
 
 - Clone the app into the owncloud apps directory:
 
-    ``git clone https://github.com/icewind1991/files_markdown.git``
+    ``git clone https://github.com/mdusher/files_markdown.git``
 
 - Activate the App.
 
