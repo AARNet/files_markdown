@@ -1,5 +1,6 @@
 OCA.Files_Markdown = {
 	markdownItPromise: null,
+	markdownItCheckboxPromise: null,
 	highlightLoadPromise: null,
 	katexLoadPromise: null,
 	texmathLoaded: false
@@ -17,6 +18,7 @@ OCA.Files_Markdown.Preview.prototype = {
 
 		$.when(
 			this.loadMarkdownIt(),
+			this.loadMarkdownItCheckbox(),
 			this.loadHighlight(),
 			this.loadKatex()
 		).then(function () {
@@ -65,6 +67,13 @@ OCA.Files_Markdown.Preview.prototype = {
 		return OCA.Files_Markdown.markdownItLoadPromise;
 	},
 
+	loadMarkdownItCheckbox: function () {
+		if (!OCA.Files_Markdown.markdownItCheckboxLoadPromise) {
+			OCA.Files_Markdown.markdownItCheckboxLoadPromise = OC.addScript('files_markdown', 'markdown-it-checkbox');
+		}
+		return OCA.Files_Markdown.markdownItCheckboxLoadPromise;
+	},
+
 	loadHighlight: function () {
 		if (!OCA.Files_Markdown.highlightLoadPromise) {
 			OCA.Files_Markdown.highlightLoadPromise = OC.addScript('files_markdown', 'highlight.pack');
@@ -92,8 +101,6 @@ OCA.Files_Markdown.Preview.prototype = {
 };
 
 OCA.Files_Markdown.MarkdownIt = function () {
-	OCA.Files_Markdown.Preview.prototype.loadTexmath();
-	var tm = texmath.use(katex);
 	var md = window.markdownit({
 		highlight: function (str, lang) {
 			if (lang && hljs.getLanguage(lang)) {
@@ -106,7 +113,21 @@ OCA.Files_Markdown.MarkdownIt = function () {
 			return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
 		}
 	});
+	// load texmath plugin	
+	OCA.Files_Markdown.Preview.prototype.loadTexmath();
+	var tm = texmath.use(katex);
 	md.use(tm, {delimiters:'dollars',macros:{"\\RR": "\\mathbb{R}"}});
+
+	// load checkbox plugin
+	md.use(markdownitCheckbox,{
+		disabled: false,
+		divWrap: false,
+		divClass: 'checkbox',
+		idPrefix: 'cbx_',
+		ulClass: 'task-list',
+		liClass: 'task-list-item'
+	});
+
 	return md;
 }
 
