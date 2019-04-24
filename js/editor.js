@@ -1,8 +1,9 @@
-OCA.Files_Markdown = {};
-
-OCA.Files_Markdown.mathJaxLoaded = false;
-OCA.Files_Markdown.markedLoadPromise = null;
-OCA.Files_Markdown.highlightLoaded = null;
+OCA.Files_Markdown = {
+	markdownItPromise: null,
+	highlightLoadPromise: null,
+	katexLoadPromise: null,
+	texmathLoaded: false
+};
 
 OCA.Files_Markdown.Preview = function () {
 	this.renderer = null;
@@ -15,10 +16,11 @@ OCA.Files_Markdown.Preview.prototype = {
 		var getUrl = this.getUrl.bind(this);
 
 		$.when(
-			this.loadMarked(),
-			this.loadHighlight()
+			this.loadMarkdownIt(),
+			this.loadHighlight(),
+			this.loadKatex()
 		).then(function () {
-			this.renderer = new marked.Renderer();
+			this.renderer = window.markdownit();
 			this.renderer.image = function (href, title, text) {
 				var out = '<img src="' + getUrl(href) + '" alt="' + text + '"';
 				if (title) {
@@ -28,16 +30,8 @@ OCA.Files_Markdown.Preview.prototype = {
 				return out;
 			};
 
-			marked.setOptions({
-				highlight: function (code) {
-					return hljs.highlightAuto(code).value;
-				},
-				renderer: this.renderer,
-				headerPrefix: 'md-',
-				sanitize: true
-			});
 		}.bind(this));
-		this.loadMathJax();
+		this.loadTexmath();
 	},
 
 	getUrl:  function (path) {
@@ -59,18 +53,16 @@ OCA.Files_Markdown.Preview.prototype = {
 
 	previewText: function (text, element) {
 		OCA.Files_Markdown.Preview.addActions();
-		var html = marked(OCA.Files_Markdown.Preview.prepareText(text));
+		var md = OCA.Files_Markdown.MarkdownIt();
+		var html = md.render(OCA.Files_Markdown.Preview.prepareText(text));
 		element.html(html);
-		if (window.MathJax) {
-			MathJax.Hub.Queue(["Typeset", MathJax.Hub, element[0]]);
-		}
 	},
 
-	loadMarked: function () {
-		if (!OCA.Files_Markdown.markedLoadPromise) {
-			OCA.Files_Markdown.markedLoadPromise = OC.addScript('files_markdown', 'marked');
+	loadMarkdownIt: function () {
+		if (!OCA.Files_Markdown.markdownItLoadPromise) {
+			OCA.Files_Markdown.markdownItLoadPromise = OC.addScript('files_markdown', 'markdown-it');
 		}
-		return OCA.Files_Markdown.markedLoadPromise;
+		return OCA.Files_Markdown.markdownItLoadPromise;
 	},
 
 	loadHighlight: function () {
@@ -80,27 +72,43 @@ OCA.Files_Markdown.Preview.prototype = {
 		return OCA.Files_Markdown.highlightLoadPromise;
 	},
 
-	loadMathJax: function () {
-		if (OCA.Files_Markdown.mathJaxLoaded) {
-			return;
+	loadTexmath: function () {
+		if (!OCA.Files_Markdown.texmathLoaded) {
+                var path = OC.filePath('files_markdown', 'js', 'texmath.js');
+	                //insert using native dom to prevent jquery from removing the script tag
+	                script = document.createElement("script");
+        	        script.src = path;
+	                this.head.appendChild(script);
+			OCA.Files_Markdown.texmathLoaded = 'true'
 		}
-		OCA.Files_Markdown.mathJaxLoaded = true;
-		var script = document.createElement("script");
-		script.type = "text/x-mathjax-config";
-		script[(window.opera ? "innerHTML" : "text")] =
-			"MathJax.Hub.Config({\n" +
-			"  tex2jax: { inlineMath: [['$','$'], ['\\\\(','\\\\)']] }\n" +
-			"});";
-		this.head.appendChild(script);
+	},
 
-		var path = OC.filePath('files_markdown', 'js', 'mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML');
-
-		//insert using native dom to prevent jquery from removing the script tag
-		script = document.createElement("script");
-		script.src = path;
-		this.head.appendChild(script);
+	loadKatex: function () {
+		if (!OCA.Files_Markdown.katexLoadPromise) {
+			OCA.Files_Markdown.katexLoadPromise = OC.addScript('files_markdown', 'katex');
+		}
+		return OCA.Files_Markdown.katexLoadPromise;
 	}
 };
+
+OCA.Files_Markdown.MarkdownIt = function () {
+	OCA.Files_Markdown.Preview.prototype.loadTexmath();
+	var tm = texmath.use(katex);
+	var md = window.markdownit({
+		highlight: function (str, lang) {
+			if (lang && hljs.getLanguage(lang)) {
+				try {
+					return '<pre class="hljs"><code>' +
+					hljs.highlight(lang, str, true).value +
+					'</code></pre>';
+				} catch (__) {}
+			}
+			return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+		}
+	});
+	md.use(tm, {delimiters:'dollars',macros:{"\\RR": "\\mathbb{R}"}});
+	return md;
+}
 
 OCA.Files_Markdown.Preview.prepareText = function (text) {
 	text = text.trim();
