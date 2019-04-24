@@ -115,6 +115,10 @@ OCA.Files_Markdown.Preview.prepareText = function (text) {
 OCA.Files_Markdown.Preview.addActions = function () {
 	editor_controls = $('#editor_controls');
 	if (editor_controls.data('md_toggles') !== 'true') {	
+		// Unbind text editor close on click outside of editor
+		$(document).unbind('mouseup', OCA.Files_Texteditor._onClickDocument);
+
+		// Add view controls
 		$('<button id="md-view-preview">').text('Preview').addClass("editor_control").appendTo('#editor_controls');
 		$("#md-view-preview" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('preview', this); });
 		$('<button id="md-view-sidebyside">').text('Side By Side').addClass("editor_control").appendTo('#editor_controls');
