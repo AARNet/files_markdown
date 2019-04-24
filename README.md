@@ -9,10 +9,10 @@ The previewer has 3 separate views:
 * Preview only
 
 The editor uses the [markdown-it](https://github.com/markdown-it/markdown-it) parser and has the following plugins enabled:
-* [markdown-it-texmath](https://github.com/goessner/markdown-it-texmath)
-* [markdown-it-checkboxes](https://github.com/benjycui/markdown-it-checkboxes)
+* [markdown-it-texmath](https://github.com/goessner/markdown-it-texmath) - this allows support for TeX math which is rendered using KaTeX. This can be used by surrounding math in `$$`.
+* [markdown-it-checkboxes](https://github.com/benjycui/markdown-it-checkboxes) - this allows the `[ ]` and `[X]` operator for rendering checkboxes
+* [markdown-it-for-inline](https://github.com/benjycui/markdown-it-for-inline) - this is used to allow inline images from your ownCloud (eg. `![](/Photos/Paris.jpg)`)
 
-Through markdown-it-texmath, there is support for TeX math which is rendered using KaTeX. This can be used by surrounding math in `$$`
 
 Requirements
 ---

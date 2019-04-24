@@ -1,6 +1,7 @@
 OCA.Files_Markdown = {
 	markdownItPromise: null,
 	markdownItCheckboxPromise: null,
+	markdownItInlinePromise: null,
 	highlightLoadPromise: null,
 	katexLoadPromise: null,
 	texmathLoaded: false
@@ -14,29 +15,18 @@ OCA.Files_Markdown.Preview = function () {
 
 OCA.Files_Markdown.Preview.prototype = {
 	init: function () {
-		var getUrl = this.getUrl.bind(this);
-
 		$.when(
 			this.loadMarkdownIt(),
 			this.loadMarkdownItCheckbox(),
+			this.loadMarkdownItInline(),
 			this.loadHighlight(),
 			this.loadKatex()
 		).then(function () {
-			this.renderer = window.markdownit();
-			this.renderer.image = function (href, title, text) {
-				var out = '<img src="' + getUrl(href) + '" alt="' + text + '"';
-				if (title) {
-					out += ' title="' + title + '"';
-				}
-				out += this.options.xhtml ? '/>' : '>';
-				return out;
-			};
-
+			this.loadTexmath();
 		}.bind(this));
-		this.loadTexmath();
 	},
 
-	getUrl:  function (path) {
+	getImageUrl:  function (path) {
 		if (!path) {
 			return path;
 		}
@@ -61,17 +51,24 @@ OCA.Files_Markdown.Preview.prototype = {
 	},
 
 	loadMarkdownIt: function () {
-		if (!OCA.Files_Markdown.markdownItLoadPromise) {
-			OCA.Files_Markdown.markdownItLoadPromise = OC.addScript('files_markdown', 'markdown-it');
+		if (!OCA.Files_Markdown.markdownItPromise) {
+			OCA.Files_Markdown.markdownItPromise = OC.addScript('files_markdown', 'markdown-it');
 		}
-		return OCA.Files_Markdown.markdownItLoadPromise;
+		return OCA.Files_Markdown.markdownItPromise;
 	},
 
 	loadMarkdownItCheckbox: function () {
-		if (!OCA.Files_Markdown.markdownItCheckboxLoadPromise) {
-			OCA.Files_Markdown.markdownItCheckboxLoadPromise = OC.addScript('files_markdown', 'markdown-it-checkbox');
+		if (!OCA.Files_Markdown.markdownItCheckboxPromise) {
+			OCA.Files_Markdown.markdownItCheckboxPromise = OC.addScript('files_markdown', 'markdown-it-checkbox');
 		}
-		return OCA.Files_Markdown.markdownItCheckboxLoadPromise;
+		return OCA.Files_Markdown.markdownItCheckboxPromise;
+	},
+	
+	loadMarkdownItInline: function () {
+		if (!OCA.Files_Markdown.markdownItInlinePromise) {
+			OCA.Files_Markdown.markdownItInlinePromise = OC.addScript('files_markdown', 'markdown-it-for-inline');
+		}
+		return OCA.Files_Markdown.markdownItInlinePromise;
 	},
 
 	loadHighlight: function () {
@@ -128,6 +125,10 @@ OCA.Files_Markdown.MarkdownIt = function () {
 		liClass: 'task-list-item'
 	});
 
+	// load inline plugin for image replacement
+	md.use(window.markdownitForInline, 'internal_image_link', 'image', function(tokens, idx) {
+		tokens[idx].attrSet('src', OCA.Files_Markdown.Preview.prototype.getImageUrl(tokens[idx].attrGet('src')));
+	});
 	return md;
 }
 
