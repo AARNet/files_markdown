@@ -367,6 +367,11 @@
   margin-top: 0;
 }
 
+#preview.text-markdown p em {
+  font-style: italic;
+  opacity: 1;
+}
+
 #preview.text-markdown blockquote {
   margin: 0;
 }
