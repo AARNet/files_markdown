@@ -1,29 +1,26 @@
 OCA.Files_Markdown = {
-	markdownItPromise: null,
-	markdownItCheckboxPromise: null,
-	markdownItInlinePromise: null,
-	highlightLoadPromise: null,
-	katexLoadPromise: null,
-	texmathLoaded: false
+	pluginPromises: {},
+	dirtyPluginLoaded: {}
 };
 
 OCA.Files_Markdown.Preview = function () {
 	this.renderer = null;
 	this.head = document.head;
-	this.preview = _.throttle(this.previewText, 500);
+	this.preview = _.throttle(this.renderMarkdown, 500);
 };
 
 OCA.Files_Markdown.Preview.prototype = {
 	init: function () {
 		$.when(
-			this.loadMarkdownIt(),
-			this.loadMarkdownItCheckbox(),
-			this.loadMarkdownItInline(),
-			this.loadHighlight(),
-			this.loadKatex()
+			this.loadPlugin('markdown-it'),
+			this.loadPlugin('markdown-it-anchor'),
+			this.loadPlugin('markdown-it-checkbox'),
+			this.loadPlugin('markdown-it-for-inline'),
+			this.loadPlugin('highlight.pack'),
+			this.loadPlugin('katex')
 		).then(function () {
-			this.loadTexmath();
 		}.bind(this));
+		this.dirtyLoadPlugin('texmath.js');
 	},
 
 	getImageUrl:  function (path) {
@@ -43,62 +40,35 @@ OCA.Files_Markdown.Preview.prototype = {
 		}
 	},
 
-	previewText: function (text, element) {
-		OCA.Files_Markdown.Preview.addActions();
+	renderMarkdown: function (text, element) {
+		OCA.Files_Markdown.Preview.setupTextEditor();
 		var md = OCA.Files_Markdown.MarkdownIt();
-		var html = md.render(OCA.Files_Markdown.Preview.prepareText(text));
+		var html = md.render(text.trim());
 		element.html(html);
 	},
 
-	loadMarkdownIt: function () {
-		if (!OCA.Files_Markdown.markdownItPromise) {
-			OCA.Files_Markdown.markdownItPromise = OC.addScript('files_markdown', 'markdown-it');
+	loadPlugin: function (plugin) {
+		if (!OCA.Files_Markdown.pluginPromises[plugin]) {
+			OCA.Files_Markdown.pluginPromises[plugin] = OC.addScript('files_markdown', plugin);
 		}
-		return OCA.Files_Markdown.markdownItPromise;
+		return OCA.Files_Markdown.pluginPromises[plugin];
 	},
 
-	loadMarkdownItCheckbox: function () {
-		if (!OCA.Files_Markdown.markdownItCheckboxPromise) {
-			OCA.Files_Markdown.markdownItCheckboxPromise = OC.addScript('files_markdown', 'markdown-it-checkbox');
-		}
-		return OCA.Files_Markdown.markdownItCheckboxPromise;
-	},
-	
-	loadMarkdownItInline: function () {
-		if (!OCA.Files_Markdown.markdownItInlinePromise) {
-			OCA.Files_Markdown.markdownItInlinePromise = OC.addScript('files_markdown', 'markdown-it-for-inline');
-		}
-		return OCA.Files_Markdown.markdownItInlinePromise;
-	},
-
-	loadHighlight: function () {
-		if (!OCA.Files_Markdown.highlightLoadPromise) {
-			OCA.Files_Markdown.highlightLoadPromise = OC.addScript('files_markdown', 'highlight.pack');
-		}
-		return OCA.Files_Markdown.highlightLoadPromise;
-	},
-
-	loadTexmath: function () {
-		if (!OCA.Files_Markdown.texmathLoaded) {
-                var path = OC.filePath('files_markdown', 'js', 'texmath.js');
-	                //insert using native dom to prevent jquery from removing the script tag
+	dirtyLoadPlugin: function (plugin) {
+	        // Inserts using the native DOM to prevent jQuery removing the script tag
+		if (!OCA.Files_Markdown.dirtyPluginLoaded[plugin]) {
+                	var path = OC.filePath('files_markdown', 'js', plugin);
 	                script = document.createElement("script");
         	        script.src = path;
 	                this.head.appendChild(script);
-			OCA.Files_Markdown.texmathLoaded = 'true'
+			OCA.Files_Markdown.dirtyPluginLoaded[plugin] = 'true';
 		}
-	},
-
-	loadKatex: function () {
-		if (!OCA.Files_Markdown.katexLoadPromise) {
-			OCA.Files_Markdown.katexLoadPromise = OC.addScript('files_markdown', 'katex');
-		}
-		return OCA.Files_Markdown.katexLoadPromise;
 	}
 };
 
 OCA.Files_Markdown.MarkdownIt = function () {
 	var md = window.markdownit({
+		linkify: true,
 		highlight: function (str, lang) {
 			var block = '';
 			if (lang && hljs.getLanguage(lang)) {
@@ -112,7 +82,6 @@ OCA.Files_Markdown.MarkdownIt = function () {
 		}
 	});
 	// load texmath plugin	
-	OCA.Files_Markdown.Preview.prototype.loadTexmath();
 	var tm = texmath.use(katex);
 	md.use(tm, {delimiters:'dollars',macros:{"\\RR": "\\mathbb{R}"}});
 
@@ -130,26 +99,36 @@ OCA.Files_Markdown.MarkdownIt = function () {
 	md.use(window.markdownitForInline, 'internal_image_link', 'image', function(tokens, idx) {
 		tokens[idx].attrSet('src', OCA.Files_Markdown.Preview.prototype.getImageUrl(tokens[idx].attrGet('src')));
 	});
+
+	// Correct anchors to work with editor
+	editorSlugify = function (s) { return 'editor/'+encodeURIComponent(String(s).trim().toLowerCase().replace(/\s+/g, '-')) };
+	md.use(window.markdownItAnchor, { slugify: editorSlugify });
+        md.use(window.markdownitForInline, 'url_new_win', 'link_open', function (tokens, idx) {
+		href = tokens[idx].attrGet('href');
+		if (href[0] !== '#') {
+			tokens[idx].attrPush(['target', '_blank']);
+			tokens[idx].attrPush(['rel', 'noopener']);
+		} else {
+			tokens[idx].attrSet('href', '#' + editorSlugify(href.substr(1)));
+		}
+        });
+
 	return md;
 }
 
-OCA.Files_Markdown.Preview.prepareText = function (text) {
-	text = text.trim();
-	if (text.substr(0, 3) === '+++') {
-		text = text.substr(3);
-		text = text.substr(text.indexOf('+++') + 3);
-	}
-
-	return text;
-};
-
-OCA.Files_Markdown.Preview.addActions = function () {
+OCA.Files_Markdown.Preview.setupTextEditor = function () {
 	editor_controls = $('#editor_controls');
 	if (editor_controls.data('md_toggles') !== 'true') {	
 		// Add a border to the bottom of the editor controls panel
 		editor_controls.addClass('md-header');
 		// Unbind text editor close on click outside of editor
 		$(document).unbind('mouseup', OCA.Files_Texteditor._onClickDocument);
+
+		// Setup text editor to not close when an anchor is clicked
+		window.onpopstate = OCA.Files_Markdown.onAnchorChange;
+		if (!OCA.Files_Markdown.anchorChange) {
+			OCA.Files_Markdown.anchorChange = window.onpopstate;
+		}
 
 		// Add view controls
 		$('<button id="md-view-preview">').text('Preview').addClass("editor_control").appendTo('#editor_controls');
@@ -164,6 +143,13 @@ OCA.Files_Markdown.Preview.addActions = function () {
 	}
 };
 
+
+OCA.Files_Markdown.onAnchorChange = function (event) {
+	const anchor = window.location.hash.substr(1)
+	if (anchor.substr(0, 6) !== 'editor' && OCA.Files_Markdown.anchorChange) {
+		OCA.Files_Markdown.anchorChange.call(window, event);
+	}
+}
 
 OCA.Files_Markdown.Preview.toggleView = function (view, button) {
 	var preview = $('#preview_wrap');
