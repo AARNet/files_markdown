@@ -100,14 +100,15 @@ OCA.Files_Markdown.Preview.prototype = {
 OCA.Files_Markdown.MarkdownIt = function () {
 	var md = window.markdownit({
 		highlight: function (str, lang) {
+			var block = '';
 			if (lang && hljs.getLanguage(lang)) {
 				try {
-					return '<pre class="hljs"><code>' +
-					hljs.highlight(lang, str, true).value +
-					'</code></pre>';
+					block = hljs.highlight(lang, str, true).value ;
 				} catch (__) {}
+			} else {
+				block = hljs.highlightAuto(str).value;
 			}
-			return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+			return '<pre class="hljs"><code>' + block + '</code></pre>';
 		}
 	});
 	// load texmath plugin	
