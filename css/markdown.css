@@ -378,6 +378,10 @@
   padding-left: 0;
 }
 
+#preview.text-markdown ul {
+  list-style: disc;
+}
+
 #preview.text-markdown ol ol,
 #preview.text-markdown ul ol {
   list-style-type: lower-roman;
