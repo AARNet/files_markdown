@@ -131,18 +131,20 @@ OCA.Files_Markdown.Preview.setupTextEditor = function () {
 		}
 
 		// Add view controls
-		$('<button id="md-view-preview">').text('Preview').addClass("editor_control").appendTo('#editor_controls');
-		$("#md-view-preview" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('preview', this); });
-		$('<button id="md-view-sidebyside">').text('Side By Side').addClass("editor_control").appendTo('#editor_controls');
-		$("#md-view-sidebyside" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('sidebyside', this); });
-		$('<button id="md-view-editor">').text('Editor').addClass("editor_control").appendTo('#editor_controls');
-		$("#md-view-editor" ).bind( "click", function() { OCA.Files_Markdown.Preview.toggleView('editor', this); });
+		OCA.Files_Markdown.addViewButton('md-view-preview', 'Preview', function() { OCA.Files_Markdown.Preview.toggleView('preview', this); });
+		OCA.Files_Markdown.addViewButton('md-view-sidebyside', 'Side By Side', function() { OCA.Files_Markdown.Preview.toggleView('sidebyside', this); });
+		OCA.Files_Markdown.addViewButton('md-view-editor', 'Editor', function() { OCA.Files_Markdown.Preview.toggleView('editor', this); });
 		$('#md-view-sidebyside').addClass('active');
 
 		editor_controls.data('md_toggles', 'true');
 	}
 };
 
+
+OCA.Files_Markdown.addViewButton = function (id, label, clickevent) {
+	$('<button id="'+id+'">').text(label).attr('title', label).addClass("editor_control").appendTo('#editor_controls');
+	$("#"+id).bind( "click", clickevent);
+}
 
 OCA.Files_Markdown.onAnchorChange = function (event) {
 	const anchor = window.location.hash.substr(1)
@@ -155,11 +157,13 @@ OCA.Files_Markdown.Preview.toggleView = function (view, button) {
 	var preview = $('#preview_wrap');
 	var editor = $('#editor');
 	var controls = $('#editor_controls button.editor_control');
-	
-	controls.removeClass('active');
-	preview.removeClass('md-hidden').removeClass('md-full');
-	editor.removeClass('md-hidden').removeClass('md-full');
 
+	// Reset view	
+	controls.removeClass('active');
+	preview.removeClass('md-hidden md-full');
+	editor.removeClass('md-hidden md-full');
+
+	// Set active view
 	switch(view) {
 		case 'preview':
 			$(button).addClass('active');
@@ -173,8 +177,8 @@ OCA.Files_Markdown.Preview.toggleView = function (view, button) {
 			break;
 		default:
 			$('#md-view-sidebyside').addClass('active');
-		        preview.removeClass('md-hidden').removeClass('md-full');
-		        editor.removeClass('md-hidden').removeClass('md-full');
+		        preview.removeClass('md-hidden md-full');
+		        editor.removeClass('md-hidden md-full');
 	}
 }
 
