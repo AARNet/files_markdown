@@ -8,6 +8,8 @@ The previewer has 3 separate views:
 * Side by side (editor and preview)
 * Preview only
 
+![](screenshots/sidebyside.png)
+
 The editor uses the following plugins for rendering markdown:
 * [markdown-it](https://github.com/markdown-it/markdown-it) for the initial parsing of the markdown
 * [markdown-it-texmath](https://github.com/goessner/markdown-it-texmath) - this allows support for TeX math which is rendered using KaTeX. This can be used by surrounding math in `$$`.
