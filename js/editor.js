@@ -174,6 +174,7 @@ OCA.Files_Markdown.Preview.toggleView = function (view, button) {
 			$(button).addClass('active');
 			editor.addClass('md-full');
 			preview.addClass('md-hidden');
+			aceEditor.resize();
 			break;
 		default:
 			$('#md-view-sidebyside').addClass('active');
