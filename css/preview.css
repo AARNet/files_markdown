@@ -1,3 +1,7 @@
+.icon.icon-filetype-markdown {
+	background-image: url(../img/text-code.svg);
+}
+
 .md-hidden {
 	width: 0% !important;
 	display: none !important;

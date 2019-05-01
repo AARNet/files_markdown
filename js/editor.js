@@ -182,8 +182,35 @@ OCA.Files_Markdown.Preview.toggleView = function (view, button) {
 	}
 }
 
+// register the new menu entry
+OCA.Files_Markdown.NewFileMenuEntry = {
+        attach: function(menu) {
+                var textEditor = OCA.Files_Texteditor;
+                var fileList = menu.fileList;
+
+                if (fileList.id !== 'files') {
+                        return;
+                }
+
+                menu.addMenuEntry({
+                        id: 'file',
+                        displayName: t('files_markdown', 'Markdown file'),
+                        templateName: t('files_markdown', 'New markdown file.md'),
+                        iconClass: 'icon-filetype-markdown',
+                        fileType: 'file',
+                        actionHandler: function(name) {
+                                var dir = fileList.getCurrentDirectory();
+                                fileList.createFile(name).then(function() {
+                                        textEditor._onEditorTrigger(name, { fileList: fileList, dir: dir });
+                                });
+                        }
+                });
+        }
+};
+
 $(document).ready(function () {
-	if (OCA.Files_Texteditor && OCA.Files_Texteditor.registerPreviewPlugin) {
-		OCA.Files_Texteditor.registerPreviewPlugin('text/markdown', new OCA.Files_Markdown.Preview());
-	}
+        if (OCA.Files_Texteditor && OCA.Files_Texteditor.registerPreviewPlugin) {
+                OC.Plugins.register('OCA.Files.NewFileMenu', OCA.Files_Markdown.NewFileMenuEntry);
+                OCA.Files_Texteditor.registerPreviewPlugin('text/markdown', new OCA.Files_Markdown.Preview());
+        }
 });
