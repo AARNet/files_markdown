@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <info>
 	<id>files_markdown</id>
+	<version>0.1</version>
 	<name>Markdown Editor</name>
 	<description>Markdown editor that uses Markdown It to provide a live preview.</description>
 	<licence>BSD-3-Clause</licence>
